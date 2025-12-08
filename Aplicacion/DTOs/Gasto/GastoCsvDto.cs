@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aplicacion.DTOs
+namespace Aplicacion.DTOs.Gasto
 {
-    public class GastoCreateDto
+    public class GastoCsvDto
     {
         public decimal Monto { get; set; }
         public DateTime Fecha { get; set; }
         public string Descripcion { get; set; }
-        public int IdCategoria { get; set; }
-        public int IdMetodoPago { get; set; }
+        public string Categoria { get; set; }
+        public string MetodoPago { get; set; }
     }
 }

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aplicacion.DTOs
+namespace Aplicacion.DTOs.Usuario
 {
-    public class UsuarioUpdateDto
+    public class UsuarioLoginDto
     {
-        public string Nombre { get; set; }
+        public string Email { get; set; }
         public string Clave { get; set; }
     }
 }

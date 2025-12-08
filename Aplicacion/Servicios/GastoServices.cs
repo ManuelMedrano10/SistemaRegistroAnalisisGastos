@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Aplicacion.DTOs;
+using Aplicacion.DTOs.Gasto;
 using Aplicacion.Interfaces;
 using Dominio.Entidades;
 using Dominio.Excepciones;
+using CsvHelper;
+using CsvHelper.Configuration;
+using System.Globalization;
 
 namespace Aplicacion.Servicios
 {
@@ -155,6 +158,60 @@ namespace Aplicacion.Servicios
             if (gastoExistente.Id != idUsuario)
                 throw new ItemNotFoundException("Su gasto no ha sido encontrado.");
             _repoGasto.Delete(id);
+        }
+
+        public void ImportarGastoCsv(Stream archivoImportado, int idUsuario)
+        {
+            using(var streamReader = new StreamReader(archivoImportado))
+            {
+                var configuracion = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    PrepareHeaderForMatch = args => args.Header.ToLower(),
+                    HeaderValidated = null,
+                    MissingFieldFound = null
+                };
+
+                using(var csvReader = new CsvReader(streamReader, configuracion))
+                {
+                    try
+                    {
+                        csvReader.Read();
+                        csvReader.ReadHeader();
+                        csvReader.ValidateHeader<GastoCsvDto>();
+                    }
+                    catch(HeaderValidationException ex)
+                    {
+                        throw new Exception("Su archivo importado no posee el formato correcto.");
+                    }
+
+                    var registros = csvReader.GetRecords<GastoCsvDto>().ToList();
+                    
+                    var categoriasUsuario = _repoCategoria.GetAll().Where(c => c.IdUsuario == idUsuario);
+                    var metodosPagoUsuario = _repoCategoria.GetAll().Where(m => m.IdUsuario == idUsuario);
+
+                    foreach(var fila in registros)
+                    {
+                        var categoria = categoriasUsuario.FirstOrDefault(c => c.Nombre.Equals(fila.Categoria, StringComparison.OrdinalIgnoreCase));
+                        if (categoria == null)
+                            throw new ItemNotFoundException($"La categoria importada ({fila.Categoria}) no existe.");
+
+                        var metodoPago = metodosPagoUsuario.FirstOrDefault(m => m.Nombre.Equals(fila.MetodoPago, StringComparison.OrdinalIgnoreCase));
+                        if (metodoPago == null)
+                            throw new ItemNotFoundException($"El metodo de pago importado ({fila.MetodoPago}) no existe.");
+
+                        var nuevoGasto = new GastoCreateDto
+                        {
+                            Fecha = fila.Fecha,
+                            Monto = fila.Monto,
+                            Descripcion = fila.Descripcion,
+                            IdCategoria = categoria.Id,
+                            IdMetodoPago = metodoPago.Id
+                        };
+
+                        Create(nuevoGasto, idUsuario);
+                    }
+                }
+            }
         }
     }
 }

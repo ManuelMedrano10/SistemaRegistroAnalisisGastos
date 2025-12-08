@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Aplicacion.DTOs;
+using Aplicacion.DTOs.Usuario;
 using Aplicacion.Interfaces;
 using Dominio.Entidades;
 using Dominio.Excepciones;
