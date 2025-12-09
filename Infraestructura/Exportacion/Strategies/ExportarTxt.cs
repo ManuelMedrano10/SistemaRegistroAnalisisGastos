@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Aplicacion.Interfaces;
 using Aplicacion.Servicios;
 using Dominio.Entidades;
+using Dominio.Excepciones;
 
 namespace Infraestructura.Exportacion.Strategies
 {
@@ -21,6 +22,9 @@ namespace Infraestructura.Exportacion.Strategies
 
         public byte[] ExportarReporte(int año, int mes, int idUsuario)
         {
+            if (idUsuario == 0)
+                throw new ItemNotFoundException("El usuario no ha sido encontrado.");
+
             var resumen = _reporte.GenerarResumen(año, mes, idUsuario);
             var sb = new StringBuilder();
 

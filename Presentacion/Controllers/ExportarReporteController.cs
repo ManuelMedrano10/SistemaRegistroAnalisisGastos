@@ -2,6 +2,7 @@
 using Aplicacion.Servicios;
 using Dominio.Excepciones;
 using Infraestructura.Exportacion.Factory;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace Presentacion.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ExportarReporteController : ControllerBase
     {
         private readonly ReporteMensual _reporte;
@@ -17,9 +19,17 @@ namespace Presentacion.Controllers
             _reporte = reporte;
         }
 
-        [HttpGet("descargar/{format}")]
-        public IActionResult ExportarReporte(string format, int año, int mes, int idUsuario)
+        private int ObtenerIdUsuario()
         {
+            int idUsuario = int.Parse(User.FindFirst("Id").Value);
+
+            return idUsuario;
+        }
+
+        [HttpGet("descargar/{format}")]
+        public IActionResult ExportarReporte(string format, int año, int mes)
+        {
+            int idUsuario = ObtenerIdUsuario();
             try
             {
                 var exportarFactory = new ExportadorFactory(_reporte);

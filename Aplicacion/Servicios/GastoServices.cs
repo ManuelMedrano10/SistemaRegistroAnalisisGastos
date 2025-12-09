@@ -97,7 +97,7 @@ namespace Aplicacion.Servicios
             }
         }
 
-        public void Create(GastoCreateDto dto, int idUsuario)
+        public Gasto Create(GastoCreateDto dto, int idUsuario)
         {
             if (dto.Monto < 0)
                 throw new MontoInvalidoException("Su monto es invalido. Debe ser positivo o diferente de 0.");
@@ -126,6 +126,7 @@ namespace Aplicacion.Servicios
                 _repoCategoria.Update(categoriaAsociada);
             }
             _repoGasto.Add(gasto);
+            return gasto;
         }
 
         public void Update(GastoUpdateDto dto, int idUsuario)

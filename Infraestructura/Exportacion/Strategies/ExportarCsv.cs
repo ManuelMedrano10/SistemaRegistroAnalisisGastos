@@ -31,6 +31,9 @@ namespace Infraestructura.Exportacion.Strategies
                 throw new NullFieldException("Su reporte no contiene datos.");
             }
 
+            if (idUsuario == 0)
+                throw new ItemNotFoundException("El usuario no ha sido encontrado.");
+
             var datosOrdenados = resumen.TotalPorCategoria.OrderByDescending(kvp => kvp.Value)
                 .Select(kvp => new ResumenCategoriaCsv
                 {

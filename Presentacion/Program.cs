@@ -1,6 +1,9 @@
-
+using System.Text;
 using Aplicacion.Interfaces;
+using Aplicacion.Servicios;
 using Infraestructura.Persistencia.Repositorios;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Presentacion
 {
@@ -18,6 +21,45 @@ namespace Presentacion
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repositorio<>));
 
+            builder.Services.AddScoped<AuthServices>();
+            builder.Services.AddScoped<CategoriaServices>();
+            builder.Services.AddScoped<GastoServices>();
+            builder.Services.AddScoped<MetodoPagoServices>();
+            builder.Services.AddScoped<UsuarioServices>();
+            builder.Services.AddScoped<ReporteMensual>();
+
+            var key = builder.Configuration["Jwt:Key"];
+            var issuer = builder.Configuration["Jwt:Issuer"];
+            var audience = builder.Configuration["Jwt:Audience"];
+            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = issuer,
+                    ValidateAudience = true,
+                    ValidAudience = audience,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = signingKey,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromSeconds(30)
+                };
+            });
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+            });
+
+            builder.Services.AddAuthorization();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -28,10 +70,12 @@ namespace Presentacion
             }
 
             app.UseHttpsRedirection();
-
+            app.UseCors();
             app.UseAuthorization();
+            app.UseAuthentication();
 
-
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.MapControllers();
 
             app.Run();

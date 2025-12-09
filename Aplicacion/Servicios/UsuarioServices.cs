@@ -43,22 +43,36 @@ namespace Aplicacion.Servicios
             });
         }
 
-        public void Update(string email, string claveActual, UsuarioUpdateDto dto)
+        public void Update(string email, string claveActual, string confirmarClave, string nuevaClave)
         {
             var usuarios = _repo.GetAll();
             var usuarioExistente = usuarios.FirstOrDefault(u => u.Email == email);
 
-            if (!BCrypt.Net.BCrypt.Verify(claveActual, usuarioExistente.Clave))
+            if (claveActual != confirmarClave)
+                throw new ItemNotFoundException("Sus contraseñas no coinciden. Intentelo de nuevo.");
+
+            if (!BCrypt.Net.BCrypt.Verify(confirmarClave, usuarioExistente.Clave))
                 throw new ItemNotFoundException("Su clave no coincide. Intentelo de nuevo.");
-            if (string.IsNullOrEmpty(dto.Nombre))
-                throw new NullFieldException("Se necesita un nombre para registrarse.");
-            if (string.IsNullOrEmpty(dto.Clave))
+            if (string.IsNullOrEmpty(nuevaClave))
                 throw new NullFieldException("Se necesita una contraseña para registrarse.");
 
             _repo.Update(new Usuario
             {
-                Nombre = dto.Nombre,
-                Clave = HashClave(dto.Clave)
+                Clave = HashClave(nuevaClave)
+            });
+        }
+
+        public void Update(string email, string nuevoNombre)
+        {
+            var usuarios = _repo.GetAll();
+            var usuarioExistente = usuarios.FirstOrDefault(u => u.Email == email);
+
+            if (string.IsNullOrEmpty(nuevoNombre))
+                throw new NullFieldException("Se necesita un nombre para registrarse.");
+
+            _repo.Update(new Usuario
+            {
+                Nombre = nuevoNombre
             });
         }
 

@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Aplicacion.Interfaces;
 using Aplicacion.Servicios;
+using Dominio.Excepciones;
 
 namespace Infraestructura.Exportacion.Strategies
 {
@@ -22,6 +23,9 @@ namespace Infraestructura.Exportacion.Strategies
         public byte[] ExportarReporte(int año, int mes, int idUsuario)
         {
             var resumen = _reporte.GenerarResumen(año, mes, idUsuario);
+
+            if (idUsuario == 0)
+                throw new ItemNotFoundException("El usuario no ha sido encontrado.");
 
             var datosOrdenados = new
             {
