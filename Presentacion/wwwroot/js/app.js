@@ -146,15 +146,22 @@ function editGasto(id) {
     document.getElementById('gasto-id').value = gasto.id;
     document.getElementById('gasto-desc').value = gasto.descripcion;
     document.getElementById('gasto-monto').value = gasto.monto;
-    document.getElementById('gasto-fecha').value = gasto.fecha;
+    document.getElementById('gasto-fecha').value = gasto.fecha.slice(0, 16); // Ajustar formato
     document.getElementById('modal-gasto-title').innerText = "Editar Gasto";
-    
-    // Mapeo inverso: GastoDto tiene Nombre Categoria, GastoCreateDto necesita ID
-    const catObj = allCategorias.find(c => c.nombre === gasto.categoria);
-    const metObj = allMetodos.find(m => m.nombre === gasto.metodoPago);
-    
-    if(catObj) document.getElementById('gasto-cat').value = catObj.id;
-    if(metObj) document.getElementById('gasto-met').value = metObj.id;
+
+    if (gasto.idCategoria) {
+        document.getElementById('gasto-cat').value = gasto.idCategoria;
+    } else {
+        const catObj = allCategorias.find(c => c.nombre === gasto.categoria);
+        if (catObj) document.getElementById('gasto-cat').value = catObj.id;
+    }
+
+    if (gasto.idMetodoPago) {
+        document.getElementById('gasto-met').value = gasto.idMetodoPago;
+    } else {
+        const metObj = allMetodos.find(m => m.nombre === gasto.metodoPago);
+        if (metObj) document.getElementById('gasto-met').value = metObj.id;
+    }
 
     document.getElementById('modal-gasto').classList.add('show');
 }
@@ -180,6 +187,7 @@ document.getElementById('form-import').addEventListener('submit', async (e) => {
     if (!archivo.name.endsWith('.xlsx')) {
         showAlert("El archivo debe ser un Excel (.xlsx)", "error");
         return;
+    }
 
     const formData = new FormData();
     formData.append('archivo', fileInput.files[0]);
@@ -189,8 +197,6 @@ document.getElementById('form-import').addEventListener('submit', async (e) => {
         alert(msg);
         closeModal('modal-import');
         loadGastos();
-
-        fileInput.value = '';
     } catch (error) {
         console.error(error);
         showAlert(error.message, 'error');
@@ -376,15 +382,15 @@ async function updatePass() {
 
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 function logout() { localStorage.clear(); window.location.href = 'login.html'; }
-function populateSelect(id, items, useId) {
-    const sel = document.getElementById(id);
-    const prev = sel.value;
-    sel.innerHTML = useId ? '' : '<option value="">Todos</option>';
-    items.forEach(i => {
-        const opt = document.createElement('option');
-        opt.value = useId ? i.id : i.nombre;
-        opt.text = i.nombre;
-        sel.appendChild(opt);
-    });
-    sel.value = prev;
-}
+    function populateSelect(id, items, useId) {
+        const sel = document.getElementById(id);
+        const prev = sel.value;
+        sel.innerHTML = useId ? '' : '<option value="">Todos</option>';
+        items.forEach(i => {
+            const opt = document.createElement('option');
+            opt.value = useId ? i.id : i.nombre;
+            opt.text = i.nombre;
+            sel.appendChild(opt);
+        });
+        sel.value = prev;
+    }
