@@ -4,6 +4,7 @@ using Aplicacion.Servicios;
 using Infraestructura.Persistencia.Repositorios;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Presentacion.Middlewares;
 
 namespace Presentacion
 {
@@ -71,11 +72,13 @@ namespace Presentacion
 
             app.UseHttpsRedirection();
             app.UseCors();
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();
+            
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
+            app.UseMiddleware<ErrorHandlerMiddleware>();
             app.MapControllers();
 
             app.Run();

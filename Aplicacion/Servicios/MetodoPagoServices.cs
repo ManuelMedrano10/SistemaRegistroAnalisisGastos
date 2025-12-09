@@ -38,7 +38,7 @@ namespace Aplicacion.Servicios
         {
             var metodoP = _repo.Get(id);
 
-            if (metodoP.Id == idUsuario)
+            if (metodoP.IdUsuario == idUsuario)
             {
                 return new MetodoPagoDto
                 {
@@ -87,7 +87,7 @@ namespace Aplicacion.Servicios
         public void Delete(int id, int idUsuario)
         {
             var metodoExistente = _repo.Get(id);
-            if (metodoExistente.Id != idUsuario)
+            if (metodoExistente.IdUsuario != idUsuario)
                 throw new ItemNotFoundException("Su metodo de pago no ha sido encontrado.");
             _repo.Delete(id);
         }

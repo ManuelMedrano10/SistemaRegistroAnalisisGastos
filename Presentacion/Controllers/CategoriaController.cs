@@ -33,7 +33,7 @@ namespace Presentacion.Controllers
             return Ok(categorias);
         }
 
-        [HttpGet]
+        [HttpGet("activas")]
         public IActionResult ObtenerCategoriasActivas()
         {
             var idUsuario = ObtenerIdUsuario();
@@ -44,90 +44,38 @@ namespace Presentacion.Controllers
         [HttpGet("{id}")]
         public IActionResult Obtener(int id)
         {
-            try
-            {
-                var idUsuario = ObtenerIdUsuario();
-                var categoria = _categoriaServices.ObtenerPorId(id, idUsuario);
+            var idUsuario = ObtenerIdUsuario();
+            var categoria = _categoriaServices.ObtenerPorId(id, idUsuario);
 
-                return Ok(categoria);
-            }
-            catch(ItemNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return Ok(categoria);
         }
 
         [HttpPost]
         public IActionResult Crear([FromBody] CategoriaCreateDto dto)
         {
-            try
-            {
-                var idUsuario = ObtenerIdUsuario();
-                _categoriaServices.Create(dto, idUsuario);
+            var idUsuario = ObtenerIdUsuario();
+            _categoriaServices.Create(dto, idUsuario);
 
-                return CreatedAtAction(nameof(Obtener), new { Id = _categoriaServices.ObtenerPorNombre(dto.Nombre).Id }, dto);
-            }
-            catch(NullFieldException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (MontoInvalidoException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (DuplicatedFieldException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return CreatedAtAction(nameof(Obtener), new { Id = _categoriaServices.ObtenerPorNombre(dto.Nombre).Id }, dto);
         }
 
         [HttpPut("{id}")]
         public IActionResult Actualizar(int id, [FromBody] CategoriaDto dto)
         {
-            try
-            {
-                var idUsuario = ObtenerIdUsuario();
+            var idUsuario = ObtenerIdUsuario();
 
-                if (id != dto.Id)
-                    return BadRequest(new { message = "Los IDs de las categorias no coinciden." });
+            if (id != dto.Id)
+                return BadRequest(new { message = "Los IDs de las categorias no coinciden." });
 
-                _categoriaServices.Update(dto, idUsuario);
-                return NoContent();
-            }
-            catch (ItemNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (NullFieldException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (MontoInvalidoException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (DuplicatedFieldException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            _categoriaServices.Update(dto, idUsuario);
+            return NoContent();
         }
         [HttpDelete("{id}")]
         public IActionResult Eliminar(int id)
         {
-            try
-            {
-                var idUsuario = ObtenerIdUsuario();
-                _categoriaServices.Delete(id, idUsuario);
-                return NoContent();
-            }
-            catch (ItemNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (GastoAsociadoException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var idUsuario = ObtenerIdUsuario();
+            _categoriaServices.Delete(id, idUsuario);
+            return NoContent();
         }
     }
 }

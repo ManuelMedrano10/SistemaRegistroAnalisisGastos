@@ -56,10 +56,8 @@ namespace Aplicacion.Servicios
             if (string.IsNullOrEmpty(nuevaClave))
                 throw new NullFieldException("Se necesita una contraseña para registrarse.");
 
-            _repo.Update(new Usuario
-            {
-                Clave = HashClave(nuevaClave)
-            });
+            usuarioExistente.Clave = HashClave(nuevaClave);
+            _repo.Update(usuarioExistente);
         }
 
         public void Update(string email, string nuevoNombre)
@@ -70,10 +68,9 @@ namespace Aplicacion.Servicios
             if (string.IsNullOrEmpty(nuevoNombre))
                 throw new NullFieldException("Se necesita un nombre para registrarse.");
 
-            _repo.Update(new Usuario
-            {
-                Nombre = nuevoNombre
-            });
+            usuarioExistente.Nombre = nuevoNombre;
+
+            _repo.Update(usuarioExistente);
         }
 
         public void Delete(string correo)

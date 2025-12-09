@@ -19,76 +19,36 @@ namespace Presentacion.Controllers
         [HttpPost("register")]
         public IActionResult Registrar(UsuarioRegisterDto dto)
         {
-            try
-            {
-                string clave = dto.Clave;
-                _authServices.Registrar(dto);
+            string clave = dto.Clave;
+            _authServices.Registrar(dto);
 
-                var token = _authServices.Login(new UsuarioLoginDto
-                {
-                    Email = dto.Email,
-                    Clave = clave
-                });
-                return Ok(new { token });
-            }
-            catch(NullFieldException ex)
+            var token = _authServices.Login(new UsuarioLoginDto
             {
-                return BadRequest(ex.Message);
-            }
-            catch(EmailAlreadyInUseException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+                Email = dto.Email,
+                Clave = clave
+            });
+            return Ok(new { token });
         }
 
         [HttpPost("login")]
         public IActionResult Login(UsuarioLoginDto dto)
         {
-            try
-            {
-                var resultado = _authServices.Login(dto);
-                return Ok(new { token = resultado });
-            }
-            catch(ItemNotFoundException ex)
-            {
-                return Unauthorized(ex.Message);
-            }
-            catch(InvalidLoginException ex)
-            {
-                return Unauthorized(ex.Message);
-            }
+            var resultado = _authServices.Login(dto);
+            return Ok(new { token = resultado });
         }
 
         [HttpPut("actualizarNombre/{email}")]
         public IActionResult ActualizarNombre(string email, string nombre)
         {
-            try
-            {
-                _authServices.ActualizarNombre(email, nombre);
-                return NoContent();
-            }
-            catch(NullFieldException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            _authServices.ActualizarNombre(email, nombre);
+            return NoContent();
         }
 
         [HttpPut("actualizarClave/{email}")]
         public IActionResult ActualizarClave(string email, string claveActual, string confirmarClave, string nuevaClave)
         {
-            try
-            {
-                _authServices.ActualizarClave(email, claveActual, confirmarClave, nuevaClave);
-                return NoContent();
-            }
-            catch (NullFieldException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch(ItemNotFoundException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            _authServices.ActualizarClave(email, claveActual, confirmarClave, nuevaClave);
+            return NoContent();
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Aplicacion.Utils
             var credenciales = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[] {
-                new Claim(JwtRegisteredClaimNames.Sub, idUsuario.ToString()),
+                new Claim("Id", idUsuario.ToString()),
                 new Claim("name", nombre),
                 new Claim(JwtRegisteredClaimNames.Email, correo)
             };

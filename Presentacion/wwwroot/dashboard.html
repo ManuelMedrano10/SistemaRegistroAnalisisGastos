@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-body">
+    <aside class="sidebar">
+        <div class="sidebar-header">Mi Dashboard</div>
+        <ul class="sidebar-menu">
+            <li><a href="#" class="active">Resumen</a></li>
+            <li><a href="#">Usuarios</a></li>
+            <li><a href="#">Configuración</a></li>
+        </ul>
+        <button id="logoutBtn" class="btn logout-btn">Cerrar Sesión</button>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-bar">
+            <h2 id="welcomeMessage">Hola, Usuario</h2>
+            <div class="user-profile">
+                <span>Perfil</span>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="stats-grid">
+                <div class="card">
+                    <h3>Usuarios Totales</h3>
+                    <div class="number" id="statUsers">--</div>
+                </div>
+                <div class="card">
+                    <h3>Ventas Hoy</h3>
+                    <div class="number" id="statSales">$0</div>
+                </div>
+                <div class="card">
+                    <h3>Activos</h3>
+                    <div class="number" id="statActive">--</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Información Reciente</h3>
+                <p style="margin-top: 10px; color: #666;" id="dashboardData">
+                    Cargando datos del servidor...
+                </p>
+            </div>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

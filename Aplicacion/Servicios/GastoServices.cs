@@ -156,7 +156,7 @@ namespace Aplicacion.Servicios
         public void Delete(int id, int idUsuario)
         {
             var gastoExistente = _repoGasto.Get(id);
-            if (gastoExistente.Id != idUsuario)
+            if (gastoExistente.IdUsuario != idUsuario)
                 throw new ItemNotFoundException("Su gasto no ha sido encontrado.");
             _repoGasto.Delete(id);
         }

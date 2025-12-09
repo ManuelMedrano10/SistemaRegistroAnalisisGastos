@@ -48,60 +48,27 @@ namespace Presentacion.Controllers
         [HttpPost]
         public IActionResult Crear([FromBody] MetodoPagoCreateDto dto)
         {
-            try
-            {
-                var idUsuario = ObtenerIdUsuario();
-
-                _metodoServices.Create(dto, idUsuario);
-
-                return CreatedAtAction(nameof(Obtener), new { id = _metodoServices.ObtenerPorNombre(dto.Nombre).Id,}, dto);
-            }
-            catch(DuplicatedFieldException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (NullFieldException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+           var idUsuario = ObtenerIdUsuario();
+           _metodoServices.Create(dto, idUsuario);
+           return CreatedAtAction(nameof(Obtener), new { id = _metodoServices.ObtenerPorNombre(dto.Nombre).Id,}, dto);
         }
 
         [HttpPut("{id}")]
         public IActionResult Actualizar(int id, [FromBody] MetodoPagoDto dto)
         {
-            try
-            {
-                var idUsuario = ObtenerIdUsuario();
-                if (id != dto.Id)
-                    return BadRequest(new { message = "Los IDs de los metodos de pago no coinciden." });
-
-                _metodoServices.Update(dto, idUsuario);
-                return NoContent();
-            }
-            catch (DuplicatedFieldException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (NullFieldException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var idUsuario = ObtenerIdUsuario();
+            if (id != dto.Id)
+                return BadRequest(new { message = "Los IDs de los metodos de pago no coinciden." });
+            _metodoServices.Update(dto, idUsuario);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
         public IActionResult Eliminar(int id)
         {
-            try 
-            {
-                var idUsuario = ObtenerIdUsuario();
-
-                _metodoServices.Delete(id, idUsuario);
-                return NoContent();
-            }
-            catch (ItemNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var idUsuario = ObtenerIdUsuario();
+            _metodoServices.Delete(id, idUsuario);
+            return NoContent();
         }
     }
 }
