@@ -2,53 +2,213 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Dashboard - Sistema Gastos</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="dashboard-body">
-    <aside class="sidebar">
-        <div class="sidebar-header">Mi Dashboard</div>
-        <ul class="sidebar-menu">
-            <li><a href="#" class="active">Resumen</a></li>
-            <li><a href="#">Usuarios</a></li>
-            <li><a href="#">Configuración</a></li>
-        </ul>
-        <button id="logoutBtn" class="btn logout-btn">Cerrar Sesión</button>
-    </aside>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <h2>Mi Panel</h2>
+            <nav>
+                <a onclick="showSection('gastos')" class="menu-item active">💰 Gastos</a>
+                <a onclick="showSection('categorias')" class="menu-item">📂 Categorías & Presupuesto</a>
+                <a onclick="showSection('metodos')" class="menu-item">💳 Métodos de Pago</a>
+                <a onclick="showSection('reportes')" class="menu-item">📊 Reportes & Exportación</a>
+                <a onclick="showSection('perfil')" class="menu-item">👤 Mi Perfil</a>
+            </nav>
+            <button onclick="logout()" class="btn btn-danger mt-2">Cerrar Sesión</button>
+        </aside>
 
-    <main class="main-content">
-        <div class="top-bar">
-            <h2 id="welcomeMessage">Hola, Usuario</h2>
-            <div class="user-profile">
-                <span>Perfil</span>
-            </div>
+        <main class="main-content">
+            <div id="alert-container" class="alert-box"></div>
+            <section id="gastos-section">
+                <div class="d-flex justify-between align-center mb-2">
+                    <h1>Mis Gastos</h1>
+                    <div>
+                        <button onclick="openImportModal()" class="btn btn-warning">Importar Excel</button>
+                        <button onclick="openGastoModal()" class="btn btn-success">+ Nuevo Gasto</button>
+                    </div>
+                </div>
+                
+                <div class="card d-flex" style="gap: 10px; align-items: flex-end;">
+                    <div style="flex:1">
+                        <label>Buscar:</label>
+                        <input type="text" id="filter-desc" placeholder="Descripción..." onkeyup="applyFilters()">
+                    </div>
+                    <div style="flex:1">
+                        <label>Categoría:</label>
+                        <select id="filter-cat" onchange="applyFilters()"><option value="">Todas</option></select>
+                    </div>
+                    <div style="flex:1">
+                        <label>Método:</label>
+                        <select id="filter-met" onchange="applyFilters()"><option value="">Todos</option></select>
+                    </div>
+                    <div style="flex:1">
+                        <label>Desde:</label>
+                        <input type="date" id="filter-date-start" onchange="applyFilters()">
+                    </div>
+                    <div style="flex:1">
+                        <label>Hasta:</label>
+                        <input type="date" id="filter-date-end" onchange="applyFilters()">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <table id="gastos-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Categoría</th>
+                                <th>Método</th>
+                                <th>Monto</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <h3 style="text-align: right; margin-top: 10px;">Total Visible: <span id="total-visible">$0.00</span></h3>
+                </div>
+            </section>
+
+            <section id="categorias-section" style="display:none;">
+                <div class="d-flex justify-between align-center mb-2">
+                    <h1>Categorías y Presupuestos</h1>
+                    <button onclick="openCategoriaModal()" class="btn btn-success">+ Nueva Categoría</button>
+                </div>
+                <div id="categorias-list" class="grid-container">
+                    </div>
+            </section>
+
+            <section id="metodos-section" style="display:none;">
+                <div class="d-flex justify-between align-center mb-2">
+                    <h1>Métodos de Pago</h1>
+                    <button onclick="openMetodoModal()" class="btn btn-success">+ Nuevo Método</button>
+                </div>
+                <div class="card">
+                    <table id="metodos-table">
+                        <thead><tr><th>Nombre</th><th>Acciones</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="reportes-section" style="display:none;">
+                <h1>Exportar Reportes</h1>
+                <div class="card" style="max-width: 500px;">
+                    <label>Año:</label>
+                    <input type="number" id="report-year" value="2025">
+                    <label>Mes:</label>
+                    <select id="report-month">
+                        <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
+                        <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
+                        <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
+                        <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12" selected>Diciembre</option>
+                    </select>
+                    <div class="d-flex" style="gap: 10px; margin-top: 20px;">
+                        <button onclick="downloadReport('json')" class="btn">JSON</button>
+                        <button onclick="downloadReport('txt')" class="btn">TXT</button>
+                        <button onclick="downloadReport('csv')" class="btn">CSV</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="perfil-section" style="display:none;">
+                <h1>Mi Perfil</h1>
+                <div class="card" style="max-width: 500px;">
+                    <h3>Actualizar Nombre</h3>
+                    <input type="text" id="profile-name" placeholder="Nuevo Nombre">
+                    <button onclick="updateName()" class="btn">Guardar Nombre</button>
+                    
+                    <hr style="margin: 20px 0;">
+                    
+                    <h3>Cambiar Contraseña</h3>
+                    <input type="password" id="old-pass" placeholder="Contraseña Actual">
+                    <input type="password" id="new-pass" placeholder="Nueva Contraseña">
+                    <input type="password" id="confirm-pass" placeholder="Confirmar Nueva Contraseña">
+                    <button onclick="updatePass()" class="btn btn-warning">Actualizar Contraseña</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="modal-gasto" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-gasto-title">Registrar Gasto</h2>
+            <form id="form-gasto">
+                <input type="hidden" id="gasto-id">
+                <label>Descripción</label>
+                <input type="text" id="gasto-desc" required>
+                <label>Monto</label>
+                <input type="number" step="0.01" id="gasto-monto" required>
+                <label>Fecha</label>
+                <input type="datetime-local" id="gasto-fecha" required>
+                <label>Categoría</label>
+                <select id="gasto-cat" required></select>
+                <label>Método de Pago</label>
+                <select id="gasto-met" required></select>
+                
+                <div class="d-flex justify-between mt-2">
+                    <button type="button" onclick="closeModal('modal-gasto')" class="btn btn-danger">Cancelar</button>
+                    <button type="submit" class="btn">Guardar</button>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <div class="content-area">
-            <div class="stats-grid">
-                <div class="card">
-                    <h3>Usuarios Totales</h3>
-                    <div class="number" id="statUsers">--</div>
+    <div id="modal-categoria" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-cat-title">Categoría</h2>
+            <form id="form-categoria">
+                <input type="hidden" id="cat-id">
+                <label>Nombre</label>
+                <input type="text" id="cat-nombre" required>
+                <label>Presupuesto</label>
+                <input type="number" step="0.01" id="cat-presupuesto" required>
+                <label>Activo</label>
+                <select id="cat-activo">
+                    <option value="true">Sí</option>
+                    <option value="false">No</option>
+                </select>
+                <div class="d-flex justify-between mt-2">
+                    <button type="button" onclick="closeModal('modal-categoria')" class="btn btn-danger">Cancelar</button>
+                    <button type="submit" class="btn">Guardar</button>
                 </div>
-                <div class="card">
-                    <h3>Ventas Hoy</h3>
-                    <div class="number" id="statSales">$0</div>
-                </div>
-                <div class="card">
-                    <h3>Activos</h3>
-                    <div class="number" id="statActive">--</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>Información Reciente</h3>
-                <p style="margin-top: 10px; color: #666;" id="dashboardData">
-                    Cargando datos del servidor...
-                </p>
-            </div>
+            </form>
         </div>
-    </main>
-    <script src="script.js"></script>
+    </div>
+
+    <div id="modal-metodo" class="modal">
+        <div class="modal-content">
+            <h2>Método de Pago</h2>
+            <form id="form-metodo">
+                <input type="hidden" id="met-id">
+                <label>Nombre</label>
+                <input type="text" id="met-nombre" required>
+                <div class="d-flex justify-between mt-2">
+                    <button type="button" onclick="closeModal('modal-metodo')" class="btn btn-danger">Cancelar</button>
+                    <button type="submit" class="btn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-import" class="modal">
+        <div class="modal-content">
+            <h2>Importar Gastos (CSV)</h2>
+            <p>El archivo debe tener: Monto, Fecha, Descripcion, Categoria, MetodoPago</p>
+            <form id="form-import">
+                <input type="file" id="inputImportar" accept=".xlsx" required>
+                <div class="d-flex justify-between mt-2">
+                    <button type="button" onclick="closeModal('modal-import')" class="btn btn-danger">Cancelar</button>
+                    <button type="submit" class="btn">Subir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

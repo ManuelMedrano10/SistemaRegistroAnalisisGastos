@@ -25,7 +25,7 @@ namespace Infraestructura.Exportacion.Factory
                     return new ExportarJson(_reporte);
 
                 case "CSV":
-                    return new ExportarCsv(_reporte);
+                    return new ExportarExcel(_reporte);
                 
                 case "TXT":
                     return new ExportarTxt(_reporte);

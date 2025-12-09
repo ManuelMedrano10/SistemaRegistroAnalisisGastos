@@ -10,6 +10,7 @@ using Dominio.Excepciones;
 using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
+using ClosedXML.Excel;
 
 namespace Aplicacion.Servicios
 {
@@ -161,58 +162,66 @@ namespace Aplicacion.Servicios
             _repoGasto.Delete(id);
         }
 
-        public void ImportarGastoCsv(Stream archivoImportado, int idUsuario)
+        public void ImportarGastoExcel(Stream archivoImportado, int idUsuario)
         {
-            using(var streamReader = new StreamReader(archivoImportado))
-            {
-                var configuracion = new CsvConfiguration(CultureInfo.InvariantCulture)
+           using (var workbook = new XLWorkbook(archivoImportado))
+           {
+                var worksheet = workbook.Worksheet(1);
+                var filasUsadas = worksheet.RangeUsed()?.RowsUsed();
+
+                if (filasUsadas == null || filasUsadas.Count() <= 1)
+                    throw new Exception("El archivo importado esta vacio o no contiene datos.");
+
+                var header = filasUsadas.First();
+
+                if(header.Cell(1).GetValue<string>().Trim().ToLower() != "monto" ||
+                   header.Cell(2).GetValue<string>().Trim().ToLower() != "fecha" ||
+                   header.Cell(3).GetValue<string>().Trim().ToLower() != "descripcion" ||
+                   header.Cell(4).GetValue<string>().Trim().ToLower() != "categoria" ||
+                   header.Cell(5).GetValue<string>().Trim().ToLower() != "metodopago")
                 {
-                    PrepareHeaderForMatch = args => args.Header.ToLower(),
-                    HeaderValidated = null,
-                    MissingFieldFound = null
-                };
-
-                using(var csvReader = new CsvReader(streamReader, configuracion))
-                {
-                    try
-                    {
-                        csvReader.Read();
-                        csvReader.ReadHeader();
-                        csvReader.ValidateHeader<GastoCsvDto>();
-                    }
-                    catch(HeaderValidationException ex)
-                    {
-                        throw new Exception("Su archivo importado no posee el formato correcto.");
-                    }
-
-                    var registros = csvReader.GetRecords<GastoCsvDto>().ToList();
-                    
-                    var categoriasUsuario = _repoCategoria.GetAll().Where(c => c.IdUsuario == idUsuario);
-                    var metodosPagoUsuario = _repoCategoria.GetAll().Where(m => m.IdUsuario == idUsuario);
-
-                    foreach(var fila in registros)
-                    {
-                        var categoria = categoriasUsuario.FirstOrDefault(c => c.Nombre.Equals(fila.Categoria, StringComparison.OrdinalIgnoreCase));
-                        if (categoria == null)
-                            throw new ItemNotFoundException($"La categoria importada ({fila.Categoria}) no existe.");
-
-                        var metodoPago = metodosPagoUsuario.FirstOrDefault(m => m.Nombre.Equals(fila.MetodoPago, StringComparison.OrdinalIgnoreCase));
-                        if (metodoPago == null)
-                            throw new ItemNotFoundException($"El metodo de pago importado ({fila.MetodoPago}) no existe.");
-
-                        var nuevoGasto = new GastoCreateDto
-                        {
-                            Fecha = fila.Fecha,
-                            Monto = fila.Monto,
-                            Descripcion = fila.Descripcion,
-                            IdCategoria = categoria.Id,
-                            IdMetodoPago = metodoPago.Id
-                        };
-
-                        Create(nuevoGasto, idUsuario);
-                    }
+                    throw new Exception("Su archivo importado no posee el formato correcto.");
                 }
-            }
+
+                var categoriasUsuario = _repoCategoria.GetAll().Where(c => c.IdUsuario == idUsuario);
+                var metodosPagoUsuario = _repoMetodoPago.GetAll().Where(m => m.IdUsuario == idUsuario);
+
+                var filasDatos = filasUsadas.Skip(1);
+
+                foreach(var fila in filasDatos)
+                {
+                    decimal montoValor;
+                    if (!fila.Cell(1).TryGetValue(out montoValor))
+                        throw new Exception("Error de formanto en el monto.");
+
+                    DateTime fechaValor;
+                    if (!fila.Cell(2).TryGetValue(out fechaValor))
+                        throw new Exception("Error de formato en la fecha.");
+
+                    string descripcionValor = fila.Cell(3).GetValue<string>();
+                    string categoriaNombre = fila.Cell(4).GetValue<string>();
+                    string metodoPagoNombre = fila.Cell(5).GetValue<string>();
+
+                    var categoria = categoriasUsuario.FirstOrDefault(c => c.Nombre.Equals(categoriaNombre, StringComparison.OrdinalIgnoreCase));
+                    if (categoria == null)
+                        throw new ItemNotFoundException($"La categoria importada ({categoriaNombre}) no existe.");
+
+                    var metodoPago = metodosPagoUsuario.FirstOrDefault(m => m.Nombre.Equals(metodoPagoNombre, StringComparison.OrdinalIgnoreCase));
+                    if (metodoPago == null)
+                        throw new ItemNotFoundException($"El metodo de pago importado ({metodoPagoNombre}) no existe.");
+
+                    var nuevoGasto = new GastoCreateDto
+                    {
+                        Fecha = fechaValor,
+                        Monto = montoValor,
+                        Descripcion = descripcionValor,
+                        IdCategoria = categoria.Id,
+                        IdMetodoPago = metodoPago.Id
+                    };
+
+                    Create(nuevoGasto, idUsuario);
+                }
+           }
         }
     }
 }

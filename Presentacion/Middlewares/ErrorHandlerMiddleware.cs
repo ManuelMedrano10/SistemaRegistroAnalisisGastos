@@ -12,11 +12,11 @@ namespace Presentacion.Middlewares
             _next = next;
         }
 
-        public void Invocar(HttpContext contexto)
+        public async Task Invoke(HttpContext contexto)
         {
             try
             {
-                _next(contexto);
+                await _next(contexto);
             }
             catch(Exception ex)
             {
@@ -48,7 +48,7 @@ namespace Presentacion.Middlewares
                 }
 
                 var resultado = JsonSerializer.Serialize(new { message = ex.Message });
-                respuesta.WriteAsync(resultado);
+                await respuesta.WriteAsync(resultado);
             }
         }
     }

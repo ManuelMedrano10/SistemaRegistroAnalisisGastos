@@ -48,10 +48,10 @@ namespace Aplicacion.Servicios
             var usuarios = _repo.GetAll();
             var usuarioExistente = usuarios.FirstOrDefault(u => u.Email == email);
 
-            if (claveActual != confirmarClave)
+            if (nuevaClave != confirmarClave)
                 throw new ItemNotFoundException("Sus contraseñas no coinciden. Intentelo de nuevo.");
 
-            if (!BCrypt.Net.BCrypt.Verify(confirmarClave, usuarioExistente.Clave))
+            if (!BCrypt.Net.BCrypt.Verify(claveActual, usuarioExistente.Clave))
                 throw new ItemNotFoundException("Su clave no coincide. Intentelo de nuevo.");
             if (string.IsNullOrEmpty(nuevaClave))
                 throw new NullFieldException("Se necesita una contraseña para registrarse.");

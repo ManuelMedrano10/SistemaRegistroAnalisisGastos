@@ -3,32 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenido | Mi Plataforma</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Gestión de Gastos</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <nav>
-                <div class="logo">MiLogo</div>
-                <div>
-                    <a href="login.html" class="btn btn-outline" style="margin-right: 10px;">Iniciar Sesión</a>
-                    <a href="register.html" class="btn">Registrarse</a>
-                </div>
-            </nav>
+    <header style="background: white; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div class="d-flex justify-between align-center container" style="max-width: 1000px; margin: 0 auto;">
+            <h1 style="color: var(--primary);">MisGastos</h1>
+            <div>
+                <a href="login.html" class="btn btn-outline" style="background: transparent; color: var(--primary); border: 1px solid var(--primary); margin-right: 10px;">Login</a>
+                <a href="register.html" class="btn">Registro</a>
+            </div>
         </div>
     </header>
-
-    <section class="hero">
-        <div class="container">
-            <h1>Gestiona tu negocio de forma inteligente</h1>
-            <p>La solución completa para administrar tus datos y conectar con tus usuarios.</p>
-            <a href="register.html" class="btn" style="font-size: 1.2rem; padding: 15px 30px;">Comenzar Ahora</a>
-        </div>
-    </section>
-
-    <footer style="text-align: center; padding: 20px; margin-top: 50px; color: #666;">
-        <p>&copy; 2023 Mi Plataforma SaaS. Todos los derechos reservados.</p>
-    </footer>
+    <main class="auth-wrapper" style="height: 80vh; flex-direction: column; text-align: center;">
+        <h1 style="font-size: 3rem; margin-bottom: 20px;">Controla tu dinero</h1>
+        <p style="font-size: 1.2rem; margin-bottom: 30px; color: #666;">Registra gastos, define presupuestos y exporta reportes.</p>
+        <a href="register.html" class="btn" style="font-size: 1.2rem; padding: 15px 30px;">Comenzar Gratis</a>
+    </main>
 </body>
 </html>

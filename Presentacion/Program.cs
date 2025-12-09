@@ -1,8 +1,10 @@
 using System.Text;
 using Aplicacion.Interfaces;
 using Aplicacion.Servicios;
+using Infraestructura.Persistencia.Contexto;
 using Infraestructura.Persistencia.Repositorios;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Presentacion.Middlewares;
 
@@ -18,8 +20,11 @@ namespace Presentacion
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            /*builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();*/
+
+            builder.Services.AddSqlServer<P2Context>(builder.Configuration.GetConnectionString("AppConnection"));
+
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repositorio<>));
 
             builder.Services.AddScoped<AuthServices>();
@@ -64,11 +69,11 @@ namespace Presentacion
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            /*if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            }
+            }*/
 
             app.UseHttpsRedirection();
             app.UseCors();

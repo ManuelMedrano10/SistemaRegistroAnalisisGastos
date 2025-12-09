@@ -129,9 +129,9 @@ namespace Aplicacion.Servicios
             {
                 var gastoMes = gastoServices.ObtenerGastosMes(g.Fecha.Year, g.Fecha.Month, idUsuario);
                 var gastosCategoria = gastoMes.Where(g => g.Categoria == dto.Nombre).Sum(g => g.Monto);
-                gastoAcumulado = gastosCategoria + g.Monto;
+                gastoAcumulado = gastosCategoria;
 
-                if (gastoAcumulado >= dto.Presupuesto * 0.5m)
+                /*if (gastoAcumulado >= dto.Presupuesto * 0.5m)
                 {
                     throw new AlertaPorcentaje("Alerta! Se ha superado el 50% de su presupuesto en esta categoria.");
                 }
@@ -144,7 +144,7 @@ namespace Aplicacion.Servicios
                 if (gastoAcumulado >= dto.Presupuesto)
                 {
                     throw new AlertaPorcentaje("Alerta! Se ha superado el presupuesto en esta categoria.");
-                }
+                }*/
             }
             return gastoAcumulado;
         }

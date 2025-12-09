@@ -73,7 +73,7 @@ namespace Presentacion.Controllers
             return Ok(gastos);
         }
 
-        [HttpGet]
+        [HttpGet("{id}")]
         public IActionResult Obtener(int id)
         {
             var idUsuario = ObtenerIdUsuario();
@@ -126,16 +126,31 @@ namespace Presentacion.Controllers
                 return BadRequest(new { message = "No se ha enviado ningun archivo." });
 
             var extension = Path.GetExtension(archivo.FileName).ToLower();
-            if (extension != ".csv")
-                return BadRequest(new { message = $"El formato. {extension} no es valido. Por favor, importe un archivo .csv." });
+            if (extension != ".xlsx")
+                return BadRequest(new { message = $"El formato. {extension} no es valido. Por favor, importe un archivo .xlsx." });
 
-            var mimeTypesValidos = new[] { "text/csv", "application/csv", "application/vnd.ms-excel", "text/plain" };
+            var mimeTypesValidos = new[] { 
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "application/vnd.ms-excel" 
+            };
+
             if (!mimeTypesValidos.Contains(archivo.ContentType))
-                return BadRequest(new { message = "Su archivo CSV no es valido." });
+                return BadRequest(new { message = "Su archivo Excel no es valido." });
 
             var idUsuario = ObtenerIdUsuario();
-            _gastoServices.ImportarGastoCsv(archivo.OpenReadStream(), idUsuario);
-            return Ok("El archivo ha sido importado correctamente. Sus gastos han sido guardados.");
+
+            try
+            {
+                using(var stream = archivo.OpenReadStream())
+                {
+                    _gastoServices.ImportarGastoExcel(stream, idUsuario);
+                }
+                
+                return Ok("El archivo ha sido importado correctamente. Sus gastos han sido guardados.");
+            }catch(Exception ex)
+            {
+                return BadRequest(new { message = $"Error al procesar el archivo: {ex.Message}" });
+            }
         }
     }
 }
